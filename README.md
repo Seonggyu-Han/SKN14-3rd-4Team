@@ -8,12 +8,7 @@
 
 | 이름       | 프로필                                                |
 |------------|-------------------------------------------------------|
-| [공지환](https://github.com/0jihwan)    | <img src="https://github.com/0jihwan.png" width="75" />  |
-| [김진묵](https://github.com/jinmukkim)  | <img src="https://github.com/jinmukkim.png" width="75" />|
-| [송지훈](https://github.com/teolex)     | <img src="https://github.com/teolex.png" width="75" />   |
-| [이승철](https://github.com/ezcome-ezgo)| <img src="https://github.com/ezcome-ezgo.png" width="75" />|
-| [조성렬](https://github.com/csr1968)    | <img src="https://github.com/csr1968.png" width="75" />  |
-| [한성규](https://github.com/Seonggyu-Han)| <img src="https://github.com/Seonggyu-Han.png" width="75" />|
+| [공지환](https://github.com/0jihwan)    | <img src="https://github.com/0jihwan.png" width="75" />  || [김진묵](https://github.com/jinmukkim)  | <img src="https://github.com/jinmukkim.png" width="75" />|| [송지훈](https://github.com/teolex)     | <img src="https://github.com/teolex.png" width="75" />   || [이승철](https://github.com/ezcome-ezgo)| <img src="https://github.com/ezcome-ezgo.png" width="75" />|| [조성렬](https://github.com/csr1968)    | <img src="https://github.com/csr1968.png" width="75" />  || [한성규](https://github.com/Seonggyu-Han)| <img src="https://github.com/Seonggyu-Han.png" width="75" />|
 
 ---
 
