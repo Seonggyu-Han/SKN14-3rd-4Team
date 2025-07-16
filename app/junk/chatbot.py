@@ -4,6 +4,8 @@ import os
 import base64
 from dotenv import load_dotenv
 
+from gaein_information import get_ai_response
+
 GPT_MODEL = "gpt-4.1-nano"
 
 load_dotenv()
@@ -25,7 +27,7 @@ if "user_info" not in st.session_state:
         "height": None,
         "weight": None,
         "age": None,
-        "gender": "미선택" # 선택 안하는게 불가능하다네요ㅠ
+        "gender": "미선택" # 선택 안하는게 불가능하대요ㅠ
     }
 # --- 세션 상태 초기화 끝 ---
 
@@ -42,46 +44,6 @@ except (KeyError, FileNotFoundError):
         st.error("OpenAI API 키가 설정되지 않았습니다. .env 파일이나 Streamlit secrets에 추가해주세요.", icon="🚨")
         st.stop()
 
-
-def analyze_image_with_prompt(user_prompt, image_bytes=None):
-    if image_bytes is not None:
-        try:
-            response = openai.chat.completions.create(
-                model=GPT_MODEL,   # 모델명 필요시 변경
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": user_prompt},
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/jpeg;base64,{image_bytes.decode('utf-8')}",
-                                },
-                            },
-                        ],
-                    }
-                ],
-                max_tokens=1024,
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            st.error(f"이미지 분석 중 오류 발생: {e}", icon="🔥")
-            return "죄송합니다, 요청을 처리하는 중 오류가 발생했습니다."
-    else:
-        response = openai.chat.completions.create(
-            model=GPT_MODEL,
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": user_prompt},
-                    ],
-                }
-            ],
-            max_tokens=1024,
-        )
-        return response.choices[0].message.content
 
 
 # --- Streamlit UI 구성 ---
@@ -320,9 +282,17 @@ if prompt := st.chat_input("질문을 입력하세요..."):
             # 이미지 첨부 여부에 따라 분석 함수 호출
             if "image_bytes" in user_message:
                 image_b64 = base64.b64encode(user_message["image_bytes"])
-                ai_response = analyze_image_with_prompt(prompt, image_bytes=image_b64)
+                ai_response = get_ai_response(
+                    user_prompt = prompt,
+                    image_bytes=image_b64,
+                    user_info=st.session_state.user_info,
+                    model_name = GPT_MODEL
+                )
             else:
-                ai_response = analyze_image_with_prompt(prompt)
+                ai_response = get_ai_response(
+                    user_prompt=prompt,
+                    user_info=st.session_state.user_info
+                )
 
             # AI 응답을 화면에 표시
             st.markdown(ai_response)
