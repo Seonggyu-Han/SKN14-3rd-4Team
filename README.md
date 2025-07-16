@@ -8,11 +8,11 @@
 
 <table>
   <tr>
-    <td><img src="./figure/profile_범석.png" width="250"/></td>
-    <td><img src="./figure/profile_동욱.png" width="250"/></td>
-    <td><img src="./figure/profile_민규.png" width="250"/></td>
-    <td><img src="./figure/profile_성의.png" width="250"/></td>
-    <td><img src="./figure/profile_채우.jpg" width="250"/></td>
+    <td>![](https://github.com/0jihwan.png)</td>
+    <td>![](https://github.com/jinmukkim.png)</td>
+    <td>![](https://github.com/teolex.png)</td>
+    <td>![](https://github.com/ezcome-ezgo.png)</td>
+    <td>![](https://github.com/Seonggyu-Han.png)</td>
   </tr>
   <tr>
     <td><a href="https://github.com/0jihwan">공지환</a></td>
