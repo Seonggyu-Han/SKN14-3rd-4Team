@@ -75,9 +75,9 @@
 
 ## 3. 기술 스택 및 모델
 
-| **Frontend** | **Backend** | **Model Hosting** | **LLM Model** | **DB**| **Vector DB** | **Deployment** | **Collaboration Tool** |
-|--------|--------------|-------------|-------------------|----------------|----------------|----------------|----------------------|
-|||||||| ![Git](https://img.shields.io/badge/-Git-F05032?style=for-the-badge&logo=git&logoColor=white)<br>![GitHub](https://img.shields.io/badge/-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)<br>![Discord](https://img.shields.io/badge/-Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)<br>![Notion](https://img.shields.io/badge/-Notion-000000?style=for-the-badge&logo=notion&logoColor=white) |
+| **Frontend** | **Backend** | **LLM Model** | **Vector DB**| **Collaboration Tool** |
+|--------|--------------|-------------|-------------------|----------------------|
+|![Streamlit]<img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white"/>|||| ![Git](https://img.shields.io/badge/-Git-F05032?style=for-the-badge&logo=git&logoColor=white)<br>![GitHub](https://img.shields.io/badge/-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)<br>![Discord](https://img.shields.io/badge/-Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)<br>![Notion](https://img.shields.io/badge/-Notion-000000?style=for-the-badge&logo=notion&logoColor=white) |
 
 
 <br><br>
