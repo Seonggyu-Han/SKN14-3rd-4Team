@@ -3,9 +3,26 @@
 # 4팀: 다이어트를 위한 식단 관리 및 운동 추천 챗봇
 
 ## 1. 팀 소개
-- 팀명: 4팀
-- 팀원: 공지환, 김진묵, 송지훈, 이승철, 조성렬, 한성규
+- **팀명**: 4팀
+- **팀원**: 공지환, 김진묵, 송지훈, 이승철, 조성렬, 한성규
 
+<table>
+  <tr>
+    <td><img src="./figure/profile_범석.png" width="250"/></td>
+    <td><img src="./figure/profile_동욱.png" width="250"/></td>
+    <td><img src="./figure/profile_민규.png" width="250"/></td>
+    <td><img src="./figure/profile_성의.png" width="250"/></td>
+    <td><img src="./figure/profile_채우.jpg" width="250"/></td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/qjazk0000">공지환</a></td>
+    <td><a href="https://github.com/boogiewooki02">김진묵</a></td>
+    <td><a href="https://github.com/mingyu-oo">송지훈</a></td>
+    <td><a href="https://github.com/seonguihong">이승철</a></td>
+    <td><a href="https://github.com/HCWDDD">조성렬</a></td>
+    <td><a href="https://github.com/HCWDDD">한성규</a></td>
+  </tr>
+</table>
 ---
 
 ## 2. 프로젝트 개요
