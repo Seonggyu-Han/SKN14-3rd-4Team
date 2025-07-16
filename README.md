@@ -6,11 +6,47 @@
 - **팀명**: 4팀
 - **팀원**: 공지환, 김진묵, 송지훈, 이승철, 조성렬, 한성규
 
-| 이름       | 프로필                                                |
-|------------|-------------------------------------------------------|
-| [공지환](https://github.com/0jihwan)    | <img src="https://github.com/0jihwan.png" width="75" />  || [김진묵](https://github.com/jinmukkim)  | <img src="https://github.com/jinmukkim.png" width="75" />|| [송지훈](https://github.com/teolex)     | <img src="https://github.com/teolex.png" width="75" />   || [이승철](https://github.com/ezcome-ezgo)| <img src="https://github.com/ezcome-ezgo.png" width="75" />|| [조성렬](https://github.com/csr1968)    | <img src="https://github.com/csr1968.png" width="75" />  || [한성규](https://github.com/Seonggyu-Han)| <img src="https://github.com/Seonggyu-Han.png" width="75" />|
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/0jihwan">
+        <img src="https://github.com/0jihwan.png" width="80"/><br />
+        <sub><b>공지환</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/jinmukkim">
+        <img src="https://github.com/jinmukkim.png" width="80"/><br />
+        <sub><b>김진묵</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/teolex">
+        <img src="https://github.com/teolex.png" width="80"/><br />
+        <sub><b>송지훈</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/ezcome-ezgo">
+        <img src="https://github.com/ezcome-ezgo.png" width="80"/><br />
+        <sub><b>이승철</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/csr1968">
+        <img src="https://github.com/csr1968.png" width="80"/><br />
+        <sub><b>조성렬</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Seonggyu-Han">
+        <img src="https://github.com/Seonggyu-Han.png" width="80"/><br />
+        <sub><b>한성규</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
 
----
 
 ## 2. 프로젝트 개요
 
