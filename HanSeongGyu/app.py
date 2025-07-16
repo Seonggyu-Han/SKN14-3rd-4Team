@@ -15,6 +15,7 @@ from langchain_pinecone import PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings
 from pinecone import Pinecone
 
+
 # 페이지 설정
 st.set_page_config(
     page_title="GYM-PT - 당신만의 트레이너",
@@ -212,6 +213,17 @@ class OpenAIInferer(Inferer):
         return storage
 
 # 유틸리티 함수들
+
+
+PINECONE_PJ_KEY = os.environ.get("PINECONE_PJ_KEY")
+INDEX_NAME = "food-index"
+EMBED_MODEL = "text-embedding-3-small"
+pc = Pinecone(api_key=PINECONE_PJ_KEY)
+index = pc.Index(INDEX_NAME)
+embeddings = OpenAIEmbeddings(model=EMBED_MODEL)
+vector_store = PineconeVectorStore(index=index, embedding=embeddings)
+
+
 def parse_prediction(pred_str: str) -> Tuple[str, str]:
     try:
         parsed = ast.literal_eval(pred_str)
@@ -219,6 +231,21 @@ def parse_prediction(pred_str: str) -> Tuple[str, str]:
         return menu_name.strip(), ingredients.strip()
     except:
         return pred_str, ""
+
+# --- 3. Pinecone 검색 ---
+def search_menu(menu_name: str, k: int = 3) -> List[Tuple]:
+    return vector_store.similarity_search_with_score(query=menu_name, k=k)
+
+# --- 4. Pinecone 결과 → 컨텍스트 형식 변환 ---
+def build_context(matches: List[Tuple]) -> str:
+    lines = []
+    for doc, score in matches:
+        meta = doc.metadata or {}
+        name = meta.get("RCP_NM", "알 수 없는 메뉴")
+        kcal = meta.get("INFO_ENG", "칼로리 정보 없음")
+        lines.append(f"- 메뉴명: {name}, 칼로리: {kcal} (유사도: {score:.2f})")
+    return "\n".join(lines)
+
 
 def ask_llm_calorie(menu_name: str) -> str:
     try:
@@ -232,7 +259,34 @@ def ask_llm_calorie(menu_name: str) -> str:
     except:
         return "250"  # 기본값
 
-def analyze_meal_with_llm(menu_name: str, calorie: str, user_info: str, chat_history=None) -> str:
+
+# --- 6. 메뉴명 기반 컨텍스트 생성 + 칼로리 반환 개선 버전 ---
+def get_menu_context_with_threshold(
+    menu_name: str,
+    k: int = 1,
+    threshold: float = 0.4
+) -> Tuple[str, str]:
+    matches = search_menu(menu_name, k)
+    
+    if not matches or matches[0][1] < threshold:
+        # 유사도 낮을 경우 LLM으로 fallback
+        calorie = ask_llm_calorie(menu_name)
+        context = f"- 메뉴명: {menu_name}, 칼로리: {calorie}"
+        return context, calorie
+
+    # 유사한 문서가 충분함 → 문서에서 kcal 추출
+    context = build_context(matches)
+    # 가장 첫 번째 문서 정보 사용
+    doc, _ = matches[0]
+    calorie = doc.metadata.get("INFO_ENG")
+
+    # 칼로리 정보가 누락되어 있을 경우 fallback
+    if not calorie or not str(calorie).isdigit():
+        calorie = ask_llm_calorie(menu_name)
+
+    return context, calorie
+
+def analyze_meal_with_llm(menu_name, calorie, user_info, rag_context="", chat_history=None) -> str:
     try:
         llm = ChatOpenAI(model='gpt-4o-mini', temperature=0.3)
         history_prompt = ""
@@ -243,6 +297,9 @@ def analyze_meal_with_llm(menu_name: str, calorie: str, user_info: str, chat_his
                 history_prompt += f"{who}: {content}\n"
 
         prompt = f"""
+[벡터DB 검색 결과]
+{rag_context}
+
 아래는 지금까지의 대화 내역입니다.
 {history_prompt}
 
@@ -334,7 +391,7 @@ def chat_page():
             st.rerun()
     chat_container = st.container()
     with chat_container:
-        st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+        # st.markdown('<div class="chat-container">', unsafe_allow_html=True)   # 이 줄 삭제
         if st.session_state.chat_history:
             for i, (role, content, images) in enumerate(st.session_state.chat_history):
                 if role == "user":
@@ -351,7 +408,8 @@ def chat_page():
                         {content}
                     </div>
                     """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        # st.markdown('</div>', unsafe_allow_html=True)  # 이 줄 삭제
+
     st.markdown("---")
     st.markdown("### 📝 새로운 메시지")
     uploaded_files = st.file_uploader(
@@ -392,13 +450,13 @@ def chat_page():
                                 response_parts = []
                                 for filename, pred_str in results.items():
                                     menu_name, ingredients = parse_prediction(pred_str)
-                                    calorie = ask_llm_calorie(menu_name)
-                                    # chat_history context 추가!
+                                    rag_context, calorie = get_menu_context_with_threshold(menu_name)
                                     analysis = analyze_meal_with_llm(
                                         menu_name, calorie, user_text,
                                         chat_history=st.session_state.chat_history
                                     )
-                                    response_parts.append(f"📸 **{filename}**\n{analysis}")
+                                    response_parts.append(f"📸 **{filename}**\n{rag_context}\n\n{analysis}")
+
                                 final_response = "\n\n---\n\n".join(response_parts)
                             except Exception as e:
                                 final_response = f"""
