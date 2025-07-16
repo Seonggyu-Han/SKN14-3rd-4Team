@@ -149,7 +149,6 @@ flowchart LR
     classDef ui       fill:#FFFFFF,stroke:#666,stroke-width:1px,color:#000;
 ```
 
-(작성 예정)
 <aside>
 💡 **주제 : LLM 을 연동한 내외부 문서 기반 질의 응답 시스템**
 
