@@ -8,11 +8,14 @@
 
 <table>
   <tr>
-    <td>(https://github.com/0jihwan.png)</td>
-    <td>(https://github.com/jinmukkim.png)</td>
-    <td>(https://github.com/teolex.png)</td>
-    <td>(https://github.com/ezcome-ezgo.png)</td>
-    <td>(https://github.com/Seonggyu-Han.png)</td>
+| 이름     | GitHub | 프로필              |
+|----------|--------|---------------------|
+| 공지환   | @jiwhan-gong   | ![](https://github.com/jiwhan-gong.png) |
+| 김진묵   | @jinmook-kim   | ![](https://github.com/jinmook-kim.png) |
+| 송지훈   | @jihoon-song   | ![](https://github.com/jihoon-song.png) |
+| 이승철   | @seungcheol-lee| ![](https://github.com/seungcheol-lee.png) |
+| 조성렬   | @seongryul-cho | ![](https://github.com/seongryul-cho.png) |
+| 한성규   | @seongyu-han   | ![](https://github.com/seongyu-han.png) |
   </tr>
   <tr>
     <td><a href="https://github.com/0jihwan">공지환</a></td>
