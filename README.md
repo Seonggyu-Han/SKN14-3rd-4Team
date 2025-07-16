@@ -60,7 +60,7 @@
 
 ### 개발 배경 및 필요성
 
-<img width="2580" height="1030" alt="Section 1" src="https://github.com/user-attachments/assets/c4e20a6e-3771-4b24-9043-efc35c39ac3c" />
+<img width="2693" height="1022" alt="Section 1 (1)" src="https://github.com/user-attachments/assets/00178ced-e868-40c0-a85e-d657fe8412ac" />
 
 빠르게 변화하는 라이프스타일, 도시화, 바쁜 일정, 정보 접근성 한계 등으로 건강 습관 유지가 점점 더 어려워지고 있습니다. 많은 사람들이 시간·비용의 제약, 부정확한 건강 정보, 운동시설 부족, 동기 저하 등으로 식단 관리와 규칙적 운동 실천이 어렵습니다.
 
