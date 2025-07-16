@@ -9,7 +9,8 @@
 ---
 
 ## 2. 프로젝트 개요
-<img width="2660" height="1113" alt="Section 1 - 복사본" src="https://github.com/user-attachments/assets/b4ba947f-4723-4629-8423-d57cdc646c2e" />
+
+<img width="2580" height="1030" alt="Section 1" src="https://github.com/user-attachments/assets/c4e20a6e-3771-4b24-9043-efc35c39ac3c" />
 
 ### 프로젝트 소개
 ‘다이어트를 위한 식단 관리 및 운동 추천 챗봇’은 인공지능 기반으로, 바쁜 현대인도 효율적으로 올바른 식단과 운동 습관을 관리할 수 있도록 설계된 통합 헬스케어 솔루션입니다.
