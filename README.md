@@ -6,26 +6,15 @@
 - **팀명**: 4팀
 - **팀원**: 공지환, 김진묵, 송지훈, 이승철, 조성렬, 한성규
 
-<table>
-  <tr>
-| 이름     | GitHub | 프로필              |
-|----------|--------|---------------------|
-| 공지환   | @jiwhan-gong   | ![](https://github.com/jiwhan-gong.png) |
-| 김진묵   | @jinmook-kim   | ![](https://github.com/jinmook-kim.png) |
-| 송지훈   | @jihoon-song   | ![](https://github.com/jihoon-song.png) |
-| 이승철   | @seungcheol-lee| ![](https://github.com/seungcheol-lee.png) |
-| 조성렬   | @seongryul-cho | ![](https://github.com/seongryul-cho.png) |
-| 한성규   | @seongyu-han   | ![](https://github.com/seongyu-han.png) |
-  </tr>
-  <tr>
-    <td><a href="https://github.com/0jihwan">공지환</a></td>
-    <td><a href="https://github.com/jinmukkim">김진묵</a></td>
-    <td><a href="https://github.com/teolex">송지훈</a></td>
-    <td><a href="https://github.com/ezcome-ezgo">이승철</a></td>
-    <td><a href="https://github.com/csr1968">조성렬</a></td>
-    <td><a href="github.com/Seonggyu-Han">한성규</a></td>
-  </tr>
-</table>
+| 이름       | 프로필                                                |
+|------------|-------------------------------------------------------|
+| [공지환](https://github.com/0jihwan)    | <img src="https://github.com/0jihwan.png" width="75" />  |
+| [김진묵](https://github.com/jinmukkim)  | <img src="https://github.com/jinmukkim.png" width="75" />|
+| [송지훈](https://github.com/teolex)     | <img src="https://github.com/teolex.png" width="75" />   |
+| [이승철](https://github.com/ezcome-ezgo)| <img src="https://github.com/ezcome-ezgo.png" width="75" />|
+| [조성렬](https://github.com/csr1968)    | <img src="https://github.com/csr1968.png" width="75" />  |
+| [한성규](https://github.com/Seonggyu-Han)| <img src="https://github.com/Seonggyu-Han.png" width="75" />|
+
 ---
 
 ## 2. 프로젝트 개요
