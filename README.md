@@ -8,11 +8,11 @@
 
 <table>
   <tr>
-    <td>![](https://github.com/0jihwan.png)</td>
-    <td>![](https://github.com/jinmukkim.png)</td>
-    <td>![](https://github.com/teolex.png)</td>
-    <td>![](https://github.com/ezcome-ezgo.png)</td>
-    <td>![](https://github.com/Seonggyu-Han.png)</td>
+    <td>(https://github.com/0jihwan.png)</td>
+    <td>(https://github.com/jinmukkim.png)</td>
+    <td>(https://github.com/teolex.png)</td>
+    <td>(https://github.com/ezcome-ezgo.png)</td>
+    <td>(https://github.com/Seonggyu-Han.png)</td>
   </tr>
   <tr>
     <td><a href="https://github.com/0jihwan">공지환</a></td>
