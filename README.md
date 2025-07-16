@@ -15,12 +15,12 @@
     <td><img src="./figure/profile_채우.jpg" width="250"/></td>
   </tr>
   <tr>
-    <td><a href="https://github.com/qjazk0000">공지환</a></td>
-    <td><a href="https://github.com/boogiewooki02">김진묵</a></td>
-    <td><a href="https://github.com/mingyu-oo">송지훈</a></td>
-    <td><a href="https://github.com/seonguihong">이승철</a></td>
-    <td><a href="https://github.com/HCWDDD">조성렬</a></td>
-    <td><a href="https://github.com/HCWDDD">한성규</a></td>
+    <td><a href="https://github.com/0jihwan">공지환</a></td>
+    <td><a href="https://github.com/jinmukkim">김진묵</a></td>
+    <td><a href="https://github.com/teolex">송지훈</a></td>
+    <td><a href="https://github.com/ezcome-ezgo">이승철</a></td>
+    <td><a href="https://github.com/csr1968">조성렬</a></td>
+    <td><a href="github.com/Seonggyu-Han">한성규</a></td>
   </tr>
 </table>
 ---
