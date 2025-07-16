@@ -4,12 +4,33 @@ import os
 import base64
 from dotenv import load_dotenv
 
-# .env 파일에서 환경 변수 로드
+GPT_MODEL = "gpt-4.1-nano"
+
 load_dotenv()
 
-# --- 초기 설정 및 함수 정의 ---
+# --- 세션 상태 초기화 ---
+if "uploaded_image_bytes" not in st.session_state:
+    st.session_state.uploaded_image_bytes = None
 
-# OpenAI API 키 설정
+if "file_uploader_key_sidebar_counter" not in st.session_state:
+    st.session_state.file_uploader_key_sidebar_counter = 0
+
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        {"role": "assistant", "content": "안녕하세요! 분석할 음식 사진을 올려주세요."}
+    ]
+
+if "user_info" not in st.session_state:
+    st.session_state.user_info = {
+        "height": None,
+        "weight": None,
+        "age": None,
+        "gender": "미선택" # 선택 안하는게 불가능하다네요ㅠ
+    }
+# --- 세션 상태 초기화 끝 ---
+
+
+# --- OpenAI API 키 설정 ---
 try:
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 except (KeyError, FileNotFoundError):
@@ -23,11 +44,10 @@ except (KeyError, FileNotFoundError):
 
 
 def analyze_image_with_prompt(user_prompt, image_bytes=None):
-    """OpenAI Vision API를 사용해 이미지와 사용자 질문을 함께 분석"""
     if image_bytes is not None:
         try:
             response = openai.chat.completions.create(
-                model="gpt-4.1-nano",  # 요청하신 대로 모델명 유지
+                model=GPT_MODEL,   # 모델명 필요시 변경
                 messages=[
                     {
                         "role": "user",
@@ -50,7 +70,7 @@ def analyze_image_with_prompt(user_prompt, image_bytes=None):
             return "죄송합니다, 요청을 처리하는 중 오류가 발생했습니다."
     else:
         response = openai.chat.completions.create(
-            model="gpt-4.1-nano",  # 요청하신 대로 모델명 유지
+            model=GPT_MODEL,
             messages=[
                 {
                     "role": "user",
@@ -79,17 +99,8 @@ with st.sidebar:
     # --- 개인 정보 입력 섹션 ---
     st.subheader("👤 내 정보 입력")
 
-    # 세션 상태 초기화 (처음 앱 실행 시)
-    if "user_info" not in st.session_state:
-        st.session_state.user_info = {
-            "height": None,
-            "weight": None,
-            "age": None,
-            "gender": "미선택"  # 초기값을 "미선택"으로 변경
-        }
-
-    # 키와 몸무게를 한 행에 배치
-    col_height, col_weight = st.columns(2)  # 2개의 컬럼 생성
+    col_height, col_weight = st.columns(2)  # 2개의 요소 한 행에 넣으면, 하단에 공백이 생김
+                                            # streamlit 구조상 공백 못없애는듯 거지같은놈들
 
     with col_height:
         # 키 입력 (text_input)
@@ -116,7 +127,7 @@ with st.sidebar:
             key="age_input_key"
         )
     with col_gender:
-        # 성별 선택 (radio) - "미선택" 옵션을 추가하고 기본값을 "미선택"으로 설정
+        # 성별 선택 (radio)
         gender_options = ["미선택", "남성", "여성"]
         # 현재 저장된 값에 따라 인덱스를 찾아 설정 (없으면 "미선택"의 인덱스)
         gender_current_index = gender_options.index(st.session_state.user_info.get("gender", "미선택"))
@@ -133,7 +144,7 @@ with st.sidebar:
             st.session_state.user_info["height"] = float(height_input) if height_input else None
             st.session_state.user_info["weight"] = float(weight_input) if weight_input else None
             st.session_state.user_info["age"] = int(age_input)
-            st.session_state.user_info["gender"] = gender_input  # "미선택"도 저장 가능
+            st.session_state.user_info["gender"] = gender_input
             st.success("개인 정보가 저장되었습니다! (새로고침해도 유지됩니다.)")
         except ValueError:
             st.error("키와 몸무게는 숫자로 입력해주세요.", icon="⚠️")
@@ -141,12 +152,11 @@ with st.sidebar:
     st.markdown("---\n")  # 구분선
 
     st.markdown('### 보여주실 음식 사진이 있으신가요? 영양 성분을 분석해 드립니다!')
-    # 파일 업로더 키를 동적으로 생성하여 새 파일 업로드 시 이전 상태를 무시하도록 함
-    if "file_uploader_key_sidebar_counter" not in st.session_state:
-        st.session_state.file_uploader_key_sidebar_counter = 0
+
+    current_uploader_key = f"file_uploader_key_sidebar_{st.session_state.file_uploader_key_sidebar_counter}"
 
     uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed",
-                                     key=f"file_uploader_key_sidebar_{st.session_state.file_uploader_key_sidebar_counter}")
+                                     key=current_uploader_key)
 
     if uploaded_file:
         st.session_state.uploaded_image_bytes = uploaded_file.getvalue()
@@ -156,6 +166,12 @@ with st.sidebar:
 st.title("📸 음식 사진으로 영양성분 알아보기")
 st.divider()
 
+# CSS 스타일 주입
+# 이미지가 업로드되었는지 여부에 따라 CSS 스타일을 다르게 적용
+is_image_uploaded_css = "none"
+if st.session_state.uploaded_image_bytes is None:
+    is_image_uploaded_css = 'url("https://toppng.com/uploads/preview/file-upload-image-icon-115632290507ftgixivqp.png")'
+
 st.markdown(f"""
     <style>
         /* 메인 컨텐츠 영역에 하단 여백 추가 (채팅 바 높이만큼) */
@@ -164,15 +180,15 @@ st.markdown(f"""
         }}
 
         /* Streamlit 메인 콘텐츠 컨테이너 및 섹션의 패딩 제거 */
-        .st-emotion-cache-z5fcl4, /* Streamlit 메인 콘텐츠 컨테이너 (정확한 클래스명은 F12로 확인 필요) */
-        .main .block-container, /* 이전 버전의 메인 컨테이너 */
-        section[data-testid="stSidebar"], /* 사이드바 */
-        section[data-testid="stSidebarContent"], /* 사이드바 내부 콘텐츠 */
-        .stVerticalBlock, /* st.columns가 감싸는 VerticalBlock */
-        .st-emotion-cache-mncm6h, /* stVerticalBlock의 특정 클래스 */
-        .stElementContainer, /* 모든 컴포넌트를 감싸는 ElementContainer */
-        .st-emotion-cache-kj6hex, /* stElementContainer의 특정 클래스 */
-        .st-emotion-cache-8atqhb {{ /* stFileUploader의 직접적인 부모 div */
+        .st-emotion-cache-z5fcl4,
+        .main .block-container,
+        section[data-testid="stSidebar"],
+        section[data-testid="stSidebarContent"],
+        .stVerticalBlock,
+        .st-emotion-cache-mncm6h,
+        .stElementContainer,
+        .st-emotion-cache-kj6hex,
+        .st-emotion-cache-8atqhb {{
             padding-top: 0rem !important;
             padding-bottom: 0rem !important;
             margin-top: 0rem !important;
@@ -183,9 +199,9 @@ st.markdown(f"""
         }}
 
         /* st.columns 컨테이너 자체의 간격 제거 */
-        .st-emotion-cache-1r6y92h, /* col2에 해당하는 컬럼 div (st.columns의 자식) */
-        .st-emotion-cache-1xw8pjm, /* st.columns 내부의 일반 div */
-        .st-emotion-cache-1kyx218 {{ /* 다른 st.columns 관련 div */
+        .st-emotion-cache-1r6y92h,
+        .st-emotion-cache-1xw8pjm,
+        .st-emotion-cache-1kyx218 {{
             margin: 0 !important;
             padding: 0 !important;
             gap: 0 !important;
@@ -196,21 +212,21 @@ st.markdown(f"""
         /* 파일 업로더 전체 컨테이너 (stFileUploaderDropzone) */
         [data-testid="stFileUploaderDropzone"] {{
             height: 100% !important;
-            width: 100% !important; /* 전체 너비로 사용 */
-            min-height: 50px !important; /* 최소 높이 유지 */
+            width: 100% !important;
+            min-height: 50px !important;
             padding: 0 !important;
             margin: 1 !important;
-            background-color: white !important; /* 배경 투명하게 */
-            border: solid !important; /* 테두리 제거 */
+            background-color: white !important;
+            border: solid !important;
             cursor: pointer;
         }}
 
         /* "Browse files" 버튼 - 파일 업로더 내부에만 적용되도록 수정 */
-        [data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"] {{ /* <-- 여기 선택자 변경 */
+        [data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"] {{
             height: 40px !important;
             line-height: 40px !important;
             padding: 0 1px !important;
-            font-size: 0 !important; /* 버튼 텍스트 숨김 */
+            font-size: 0 !important;
             width: 100% !important;
             min-width: unset !important;
             margin: 0 !important;
@@ -219,15 +235,14 @@ st.markdown(f"""
             position: absolute;
             top: 0;
             left: 0;
-            opacity: 0; /* 버튼 자체를 투명하게 만들어 클릭만 가능하게 함 */
+            opacity: 0;
             cursor: pointer;
         }}
 
         /* "Browse files" 버튼 내부의 텍스트 숨기기 */
-        [data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"] span {{ /* <-- 여기 선택자 변경 */
+        [data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"] span {{
             display: none !important;
         }}
-
 
         /* 드래그 앤 드롭 영역의 지침 (아이콘과 텍스트를 포함하는 부모 div) */
         [data-testid="stFileUploaderDropzoneInstructions"] {{
@@ -241,7 +256,7 @@ st.markdown(f"""
             position: absolute;
             top: 0;
             left: 0;
-            background-image: url("https://toppng.com/uploads/preview/file-upload-image-icon-115632290507ftgixivqp.png") !important;
+            background-image: {is_image_uploaded_css} !important; /* 여기를 변경 */
             background-size: 35px 35px !important;
             background-repeat: no-repeat !important;
             background-position: center !important;
@@ -273,15 +288,6 @@ st.markdown(f"""
         }}
     </style>
     """, unsafe_allow_html=True)
-
-# 채팅 기록 및 업로드된 이미지 세션 상태 초기화
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "assistant", "content": "안녕하세요! 분석할 음식 사진을 올려주세요."}
-    ]
-
-if "uploaded_image_bytes" not in st.session_state:
-    st.session_state.uploaded_image_bytes = None
 
 # 기존 채팅 기록 표시
 for msg in st.session_state.messages:
@@ -320,7 +326,6 @@ if prompt := st.chat_input("질문을 입력하세요..."):
 
             # AI 응답을 화면에 표시
             st.markdown(ai_response)
-            # AI 응답을 채팅 기록에 추가
             st.session_state.messages.append({"role": "assistant", "content": ai_response})
 
             # 이미지가 사용되었을 경우에만 초기화 및 rerunning
