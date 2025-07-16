@@ -9,6 +9,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
+from transformers import BlipProcessor, BlipForQuestionAnswering
 
 
 class Inferer:
@@ -21,6 +22,15 @@ class Inferer:
     def to_pil_image(self, file_path:str):
         return Image.open(file_path).convert('RGB')
 
+
+class BlipVQAInferer(Inferer):
+    def __init__(self, model_id="Salesforce/blip-vqa-base"):
+        self.model_id  = model_id
+        self.processor = BlipProcessor.from_pretrained(model_id)
+        self.model     = BlipForQuestionAnswering.from_pretrained(model_id)
+
+    def infer(self, image:Image, filename:str):
+        pass
 
 
 class OpenAIInferer(Inferer):
@@ -63,7 +73,7 @@ class OpenAIInferer(Inferer):
 
         storage[filename] = chain.invoke({})
 
-    def __call__(self, images:list[Image], filenames:list[str], parser=StrOutputParser()):
+    def __call__(self, images:list[Image], filenames:list[str], *, parser=StrOutputParser()):
         storage = {}
         tmp_zip = zip(images, filenames)
         threads = [threading.Thread(target=self.infer, args=(img, nm, storage, parser)) for img, nm in tmp_zip]
