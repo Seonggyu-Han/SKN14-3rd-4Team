@@ -2,13 +2,17 @@ import streamlit as st
 import openai
 import os
 import base64
+import json
+import pandas as pd
+from datetime import datetime
 from dotenv import load_dotenv
 
-from chatbot_utils import get_ai_response # 이 모듈은 프로젝트 루트에 있어야 합니다.
+# gaein_information 모듈은 프로젝트 루트에 있어야 합니다.
+from chatbot_utils import get_ai_response
 
 GPT_MODEL = "gpt-4.1-nano"
 
-load_dotenv() # 챗봇 페이지에서 환경 변수를 다시 로드합니다.
+load_dotenv()
 
 # --- 세션 상태 초기화 ---
 if "uploaded_image_bytes" not in st.session_state:
@@ -19,7 +23,7 @@ if "file_uploader_key_sidebar_counter" not in st.session_state:
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "안녕하세요! 분석할 음식 사진을 올려주세요."}
+        {"role": "assistant", "content": "안녕하세요! 분석할 음식 사진을 올려주세요. 운동이나 식단 계획이 필요하시면 저에게 요청해주세요."}
     ]
 
 if "user_info" not in st.session_state:
@@ -29,7 +33,12 @@ if "user_info" not in st.session_state:
         "age": None,
         "gender": "미선택"
     }
+
+# 새로운 세션 상태 추가: 생성된 계획 데이터를 저장
+if "generated_plan_data" not in st.session_state:
+    st.session_state.generated_plan_data = None
 # --- 세션 상태 초기화 끝 ---
+
 
 # --- OpenAI API 키 설정 ---
 try:
@@ -43,7 +52,93 @@ except (KeyError, FileNotFoundError):
         st.error("OpenAI API 키가 설정되지 않았습니다. .env 파일이나 Streamlit secrets에 추가해주세요.", icon="🚨")
         st.stop()
 
-# 이 함수가 chat_page()의 역할을 합니다.
+
+# LLM이 운동/식단 계획을 JSON 형식으로 생성하도록 유도하는 프롬프트 함수
+def get_plan_prompt(plan_type, duration_weeks=1, user_prompt_text=""):
+    base_prompt = f"사용자의 신체 정보와 목표를 바탕으로 {duration_weeks}주간의 "
+    # 사용자 프롬프트를 포함하여 LLM이 더 자연스러운 응답을 하도록 유도
+    full_prompt = user_prompt_text + "\n\n" + base_prompt
+
+    if plan_type == "운동":
+        return full_prompt + """운동 루틴을 JSON 형식으로 상세하게 작성해주세요. 각 주차별로, 요일별 운동 내용 (예: 부위, 운동명, 세트 수, 반복 횟수), 휴식일 등을 포함해주세요. 목표는 다이어트를 위한 근력 및 유산소 운동 병행입니다. JSON 구조는 다음과 같아야 합니다:
+{
+  "plan_type": "운동",
+  "duration_weeks": 4,
+  "plan_details": [
+    {
+      "week": 1,
+      "schedule": [
+        {"day": "월", "focus": "하체/유산소", "exercises": [{"name": "스쿼트", "sets": 4, "reps": 10}, {"name": "런지", "sets": 3, "reps": 12}, {"name": "러닝", "duration_min": 30}]},
+        {"day": "화", "focus": "상체(밀기)/코어", "exercises": [{"name": "벤치프레스", "sets": 4, "reps": 10}, {"name": "오버헤드프레스", "sets": 3, "reps": 12}]},
+        {"day": "수", "focus": "휴식"},
+        {"day": "목", "focus": "등/유산소", "exercises": [{"name": "데드리프트", "sets": 3, "reps": 8}, {"name": "풀업", "sets": 3, "reps": "max"}, {"name": "사이클", "duration_min": 40}]},
+        {"day": "금", "focus": "어깨/팔", "exercises": [{"name": "덤벨숄더프레스", "sets": 3, "reps": 12}, {"name": "이두컬", "sets": 3, "reps": 15}]},
+        {"day": "토", "focus": "전신/고강도", "exercises": [{"name": "버피", "sets": 3, "reps": 15}, {"name": "플랭크", "duration_sec": 60}]},
+        {"day": "일", "focus": "휴식"}
+      ]
+    },
+    {
+      "week": 2,
+      "schedule": [
+        // ... week 2 내용 ...
+      ]
+    },
+    {
+      "week": 3,
+      "schedule": [
+        // ... week 3 내용 ...
+      ]
+    },
+    {
+      "week": 4,
+      "schedule": [
+        // ... week 4 내용 ...
+      ]
+    }
+    // ... 최대 {duration_weeks}주까지의 주차 내용 ...
+  ]
+}
+"""
+    elif plan_type == "식단":
+        return full_prompt + """식단 계획을 JSON 형식으로 상세하게 작성해주세요. 각 주차별로, 요일별 아침, 점심, 저녁, 간식 메뉴와 간단한 조리법, 대략적인 칼로리를 포함해주세요. 목표는 건강한 다이어트를 위한 균형 잡힌 식단입니다. JSON 구조는 다음과 같아야 합니다:
+{
+  "plan_type": "식단",
+  "duration_weeks": 4,
+  "plan_details": [
+    {
+      "week": 1,
+      "schedule": [
+        {"day": "월", "meals": {"breakfast": {"menu": "오트밀과 베리류", "calories": 300, "recipe": "오트밀에 물/우유 붓고 전자레인지, 베리 추가"}, "lunch": {"menu": "닭가슴살 샐러드", "calories": 400, "recipe": "닭가슴살 구워 야채와 드레싱"}, "dinner": {"menu": "고구마와 두부 스테이크", "calories": 350, "recipe": "고구마 삶고 두부 구워 곁들임"}, "snack": {"menu": "그릭 요거트", "calories": 100, "recipe": "그릭 요거트 그대로"}}},
+        {"day": "화", "meals": {"breakfast": {"menu": "과일 스무디", "calories": 250, "recipe": "바나나, 시금치, 아몬드 우유 믹서"}, "lunch": {"menu": "현미밥과 참치", "calories": 450, "recipe": "현미밥에 참치, 김, 채소 곁들여"}, "dinner": {"menu": "연어 스테이크와 채소", "calories": 400, "recipe": "연어 오븐에 굽고 아스파라거스, 브로콜리 곁들임"}, "snack": {"menu": "견과류 한 줌", "calories": 80, "recipe": "여러 견과류 혼합"}}},
+        // ... 요일별 내용 ...
+      ]
+    },
+    {
+      "week": 2,
+      "schedule": [
+        // ... week 2 내용 ...
+      ]
+    },
+    {
+      "week": 3,
+      "schedule": [
+        // ... week 3 내용 ...
+      ]
+    },
+    {
+      "week": 4,
+      "schedule": [
+        // ... week 4 내용 ...
+      ]
+    }
+    // ... 최대 {duration_weeks}주까지의 주차 내용 ...
+  ]
+}
+"""
+    else:
+        return ""
+
+
 def chat_page():
     # --- Streamlit UI 구성 ---
     st.set_page_config(page_title="AI 영양 분석 챗봇", page_icon="🥗", layout="centered")
@@ -238,7 +333,7 @@ def chat_page():
 
             /* 스크롤 시 하단 여백 유지 */
             .element-container:last-child {{
-                margin-bottom: 60px !important;
+                margin-bottom: 120px !important;
             }}
         </style>
         """, unsafe_allow_html=True)
@@ -249,8 +344,74 @@ def chat_page():
             if "image_bytes" in msg:
                 st.image(msg["image_bytes"], width=250)
             st.markdown(msg["content"])
+            # AI 메시지 아래에 다운로드 버튼을 동적으로 표시
+            if msg["role"] == "assistant" and "generated_plan_data" in msg:
+                plan_data = msg["generated_plan_data"]
+                plan_type = plan_data.get("plan_type", "계획").lower()
+                file_prefix = f"{plan_type}_plan"
+                current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # 사용자 입력(채팅창) 처리
+                try:
+                    rows = []
+                    for week_data in plan_data["plan_details"]:
+                        week_num = week_data["week"]
+                        for day_data in week_data["schedule"]:
+                            day = day_data["day"]
+                            if plan_type == "운동":
+                                if "exercises" in day_data and day_data["exercises"]:
+                                    for exercise in day_data["exercises"]:
+                                        row = {
+                                            "주차": f"{week_num}주차",
+                                            "요일": day,
+                                            "초점": day_data.get("focus", ""),
+                                            "운동명": exercise.get("name", ""),
+                                            "세트": exercise.get("sets", ""),
+                                            "반복": exercise.get("reps", ""),
+                                            "시간(분)": exercise.get("duration_min", ""),
+                                            "시간(초)": exercise.get("duration_sec", "")
+                                        }
+                                        rows.append(row)
+                                else:
+                                    row = {
+                                        "주차": f"{week_num}주차",
+                                        "요일": day,
+                                        "초점": day_data.get("focus", "휴식"),
+                                        "운동명": "휴식",
+                                        "세트": "", "반복": "", "시간(분)": "", "시간(초)": ""
+                                    }
+                                    rows.append(row)
+                            elif plan_type == "식단":
+                                for meal_type, meal_info in day_data["meals"].items():
+                                    row = {
+                                        "주차": f"{week_num}주차",
+                                        "요일": day,
+                                        "식사구분": meal_type,
+                                        "메뉴": meal_info.get("menu", ""),
+                                        "칼로리": meal_info.get("calories", ""),
+                                        "조리법": meal_info.get("recipe", "")
+                                    }
+                                    rows.append(row)
+
+                    if rows:
+                        df = pd.DataFrame(rows)
+                        excel_file_name = f"{file_prefix}_{current_time}.xlsx"
+                        excel_buffer = pd.io.common.BytesIO()
+                        df.to_excel(excel_buffer, index=False, engine='xlsxwriter')
+                        excel_buffer.seek(0)
+
+                        st.download_button(
+                            label=f"⬇️ {plan_type.capitalize()} 계획 Excel 다운로드",
+                            data=excel_buffer,
+                            file_name=excel_file_name,
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            key=f"download_excel_button_{current_time}"  # 고유한 키 생성
+                        )
+                    else:
+                        st.warning("Excel 파일로 변환할 데이터가 없습니다.", icon="⚠️")
+                except Exception as e:
+                    st.error(f"Excel 파일 생성 중 오류가 발생했습니다: {e}", icon="🚨")
+
+    # --- 사용자 입력(채팅창) 처리 ---
     if prompt := st.chat_input("질문을 입력하세요..."):
 
         user_message = {"role": "user", "content": prompt}
@@ -270,28 +431,100 @@ def chat_page():
 
         # AI 응답 처리
         with st.spinner("AI가 분석하고 있어요... 🤖"):
-            # 이미지 첨부 여부에 따라 분석 함수 호출
-            if "image_bytes" in user_message:
-                image_b64 = base64.b64encode(user_message["image_bytes"]).decode('utf-8')
-                ai_response = get_ai_response(
-                    user_prompt = prompt,
-                    image_bytes=image_b64,
-                    user_info=st.session_state.user_info,
-                    model_name = GPT_MODEL
-                )
-            else:
-                ai_response = get_ai_response(
-                    user_prompt=prompt,
-                    user_info=st.session_state.user_info
-                )
+            ai_response = ""
+            generated_plan_data = None  # 초기화
 
-            # AI 응답을 화면에 표시
-            with st.chat_message("assistant"): # 수정: assistant 메시지 표시도 chat_message 블록 안에서
+            # '운동 루틴' 또는 '식단 계획' 요청 감지
+            is_plan_request = False
+            plan_type_requested = None
+            duration_weeks = 4  # 기본값: 4주 (조절 가능)
+
+            if "운동 루틴" in prompt or "운동 계획" in prompt or "운동 짜 줘" in prompt or "운동 만들어 줘" in prompt:
+                is_plan_request = True
+                plan_type_requested = "운동"
+            elif "식단 계획" in prompt or "식단 루틴" in prompt or "식단 짜 줘" in prompt or "식단 만들어 줘" in prompt:
+                is_plan_request = True
+                plan_type_requested = "식단"
+
+            # 숫자 추출하여 주차 설정 (예: "3주 운동 루틴" -> 3주)
+            import re
+            match = re.search(r'(\d+)\s*주', prompt)
+            if match:
+                requested_weeks = int(match.group(1))
+                if 1 <= requested_weeks <= 4:
+                    duration_weeks = requested_weeks
+                else:
+                    ai_response += "최대 4주까지만 계획을 생성할 수 있습니다. 4주로 조정하여 진행합니다. "
+
+            if is_plan_request:
+                if not st.session_state.user_info.get("height") or not st.session_state.user_info.get(
+                        "weight") or not st.session_state.user_info.get("age"):
+                    ai_response = "운동/식단 계획 생성을 위해 **사이드바**에서 **키, 몸무게, 나이**를 먼저 입력하고 **'개인 정보 저장'** 버튼을 눌러주세요."
+                else:
+                    plan_prompt = get_plan_prompt(plan_type_requested, duration_weeks, prompt)
+                    try:
+                        raw_ai_response = get_ai_response(
+                            user_prompt=plan_prompt,
+                            user_info=st.session_state.user_info,
+                            model_name=GPT_MODEL
+                        )
+
+                        if "```json" in raw_ai_response:
+                            json_str = raw_ai_response.split("```json")[1].split("```")[0].strip()
+                        else:
+                            json_str = raw_ai_response.strip()
+
+                        generated_plan_data = json.loads(json_str)
+
+                        ai_response += f"네, 요청하신 {duration_weeks}주간의 {plan_type_requested} 계획을 생성했습니다. 아래 다운로드 버튼을 이용해 파일을 받아보세요!"
+                        # 생성된 계획 데이터를 AI 메시지에 첨부
+                        # 이렇게 하면 AI 메시지가 표시될 때 다운로드 버튼도 함께 렌더링됩니다.
+                        st.session_state.messages.append({
+                            "role": "assistant",
+                            "content": ai_response,
+                            "generated_plan_data": generated_plan_data
+                        })
+                        # 현재 프롬프트 처리 루틴을 중단하고 rerunning
+                        if "image_bytes" in user_message:
+                            st.session_state.uploaded_image_bytes = None
+                            st.session_state.file_uploader_key_sidebar_counter += 1
+                        st.rerun()  # 중요: 이전에 다운로드 버튼을 누르지 않은 경우 즉시 업데이트
+
+                    except json.JSONDecodeError as e:
+                        ai_response = f"죄송합니다, 계획 생성에 실패했습니다. AI 응답이 올바른 JSON 형식이 아닙니다. (오류: {e})"
+                    except Exception as e:
+                        ai_response = f"죄송합니다, 계획 생성 중 오류가 발생했습니다: {e}"
+            else:
+                # 일반 채팅 응답
+                if "image_bytes" in user_message:
+                    image_b64 = base64.b64encode(user_message["image_bytes"]).decode('utf-8')
+                    ai_response = get_ai_response(
+                        user_prompt=prompt,
+                        image_bytes=image_b64,
+                        user_info=st.session_state.user_info,
+                        model_name=GPT_MODEL
+                    )
+                else:
+                    ai_response = get_ai_response(
+                        user_prompt=prompt,
+                        user_info=st.session_state.user_info
+                    )
+
+            # AI 응답을 화면에 표시 (이미 계획 요청이 처리되어 rerunning되었다면 이 부분은 스킵될 수 있음)
+            # 하지만, 오류 메시지나 일반 응답의 경우 필요
+            with st.chat_message("assistant"):
                 st.markdown(ai_response)
-            st.session_state.messages.append({"role": "assistant", "content": ai_response})
+
+            # 생성된 계획 데이터가 있다면 메시지에 추가
+            # 이전에 rerunning 된 경우에는 이미 추가되었을 수 있으므로 중복 방지
+            if not is_plan_request or generated_plan_data is None:  # 일반 응답이거나 계획 생성 실패시만 추가
+                new_assistant_message = {"role": "assistant", "content": ai_response}
+                if generated_plan_data:  # 계획이 성공적으로 생성되었지만, rerunning 없이 여기로 온 경우 (드물겠지만)
+                    new_assistant_message["generated_plan_data"] = generated_plan_data
+                st.session_state.messages.append(new_assistant_message)
 
             # 이미지가 사용되었을 경우에만 초기화 및 rerunning
-            if "image_bytes" in user_message:
+            if "image_bytes" in user_message and not is_plan_request:  # 계획 요청이 아닐 때만 rerunning
                 st.session_state.uploaded_image_bytes = None
                 st.session_state.file_uploader_key_sidebar_counter += 1
                 st.rerun()
