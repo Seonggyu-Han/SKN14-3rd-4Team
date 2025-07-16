@@ -75,9 +75,10 @@
 
 ## 3. 기술 스택 및 모델
 
-| **Frontend** | **Backend** | **LLM Model** | **Vector DB**| **Collaboration Tool** |
-|--------|--------------|-------------|-------------------|----------------------|
-|<img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white"/>|![python](https://www.python.org/static/community_log<br>![jupyter](https://jupyter.org/assets/homepage/main||![pinecone](https://avatars.githubusercontent.com/u/cone| ![Git](https://img.shields.io/badge/-Git-F05032?style=for-the-badge&logo=git&logoColor=white)<br>![GitHub](https://img.shields.io/badge/-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)<br>![Discord](https://img.shields.io/badge/-Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)<br>![Notion](https://img.shields.io/badge/-Notion-000000?style=for-the-badge&logo=notion&logoColor=white) |
+| **Frontend** | **Backend** | **LLM Model** | **Vector DB** | **Collaboration Tool** |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white"/> | <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/> <br> <img src="https://img.shields.io/badge/Jupyter-F37626?style=for-the-badge&logo=jupyter&logoColor=white"/> | <img src="https://img.shields.io/badge/OpenAI-GPT4o-10a37f?style=for-the-badge&logo=openai&logoColor=white"/> | <img src="https://img.shields.io/badge/Pinecone-27AE60?style=for-the-badge&logo=pinecone&logoColor=white"/> | <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white"/> <br> <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/> <br> <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white"/> <br> <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white"/> |
+
 
 
 <br><br>
