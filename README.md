@@ -110,7 +110,44 @@
 ---
 
 ## 5. 전체 워크 플로우
-<img width="1544" height="280" alt="image" src="https://github.com/user-attachments/assets/8e4c83f4-5212-45a1-9ca8-f525086757fe" />
+```mermaid
+flowchart LR
+    subgraph UI["Streamlit 화면"]
+        A("사용자 업로드\n• 이미지(여러 장)\n• 텍스트")
+    end
+
+    %% 1) 입력 타입 분기
+    A --> B{입력 타입?}
+
+    %% ───────── 이미지 경로 ─────────
+    B -- 이미지 --> C("GPT-4.1\nmenu_name · ingredients 추출"):::step
+    C --> D("Pinecone Vector DB\n유사 메뉴 검색"):::step
+    D -->|Top-k| E{최고 유사도 ≥ 0.4}:::decision
+
+    E -- 예 --> F("build_context()\nDB 메타에서 메뉴이름, 칼로리 확보"):::step
+    E -- 아니오 --> G("ask_LLM_calorie()\nGPT로 칼로리 추론"):::step
+    F --> H
+    G --> H
+
+    %% ───────── 텍스트 경로 ─────────
+    B -- 텍스트 --> I("사용자 텍스트\n(키·몸무게·나이·성별)"):::step
+    I --> H
+
+    %% 2) 프롬프팅 & LLM 응답
+    H("Prompt 조립\nrag_context · text · menu_name · calorie"):::step --> J("ChatOpenAI (GPT-4.1)\n식단·운동 추천"):::llm
+
+    %% 3) 결과 표시
+    J --> K("Streamlit 결과 카드\n칼로리·운동·식단 제안"):::ui
+
+    %% 반복 처리 (여러 이미지)
+    K -->|다음 이미지| B
+
+    %% 스타일
+    classDef step     fill:#E8F1FF,stroke:#0C66FF,stroke-width:1px,color:#003366;
+    classDef decision fill:#FFFBCC,stroke:#D6B400,stroke-width:1px,color:#5C4A00;
+    classDef llm      fill:#E5FFEA,stroke:#00B33C,stroke-width:1px,color:#005C1E;
+    classDef ui       fill:#FFFFFF,stroke:#666,stroke-width:1px,color:#000;
+
 
 (작성 예정)
 <aside>
@@ -156,6 +193,7 @@
 - 이미지·텍스트 멀티모달 분석 고도화
 - 실시간 DB/외부 자료(RAG) 자동 업데이트
 - 음성 챗봇, 운동 영상 등 접근성 강화
+- 칼로리뿐만 아니라 영양성분(탄단지, 나트륨, 기타 미량영양소 등)까지 상세 분석 기능 확장
 
 ### 피드백을 통한 문제 개선
 
