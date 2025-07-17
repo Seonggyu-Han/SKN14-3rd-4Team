@@ -466,7 +466,9 @@ def chat_page():
                         raw_ai_response = get_ai_response(
                             user_prompt=plan_prompt,
                             user_info=st.session_state.user_info,
-                            model_name=GPT_MODEL
+                            model_name=GPT_MODEL,
+                            # Pass the entire message history for context
+                            messages=st.session_state.messages
                         )
 
                         if "```json" in raw_ai_response:
@@ -502,12 +504,16 @@ def chat_page():
                         user_prompt=prompt,
                         image_bytes=image_b64,
                         user_info=st.session_state.user_info,
-                        model_name=GPT_MODEL
+                        model_name=GPT_MODEL,
+                        # Pass the entire message history for context
+                        messages=st.session_state.messages
                     )
                 else:
                     ai_response = get_ai_response(
                         user_prompt=prompt,
-                        user_info=st.session_state.user_info
+                        user_info=st.session_state.user_info,
+                        # Pass the entire message history for context
+                        messages=st.session_state.messages
                     )
 
             # AI 응답을 화면에 표시 (이미 계획 요청이 처리되어 rerunning되었다면 이 부분은 스킵될 수 있음)
