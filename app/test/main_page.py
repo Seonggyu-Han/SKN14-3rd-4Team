@@ -4,6 +4,9 @@ def main_page():
     # 메인 페이지 전용 CSS
     st.markdown("""
     <style>
+        .stMainBlockContainer {
+            min-width:1000px;
+        }
         .main-header {
             text-align: center;
             color: #2E7D32;
@@ -146,7 +149,7 @@ def main_page():
         <div class="feature-box">
             <div class="feature-icon">📸</div>
             <div class="feature-title">이미지 분석</div>
-            <div class="feature-text">음식 사진을 올리면 AI가 메뉴와 칼로리를 분석해드려요</div>
+            <div class="feature-text">음식 사진을 올리면<br/>AI가 메뉴와 칼로리를 분석해드려요</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -155,7 +158,7 @@ def main_page():
         <div class="feature-box">
             <div class="feature-icon">🏃‍♂️</div>
             <div class="feature-title">운동 추천</div>
-            <div class="feature-text">섭취한 칼로리에 맞는 맞춤형 운동 계획을 제공해드려요</div>
+            <div class="feature-text">섭취한 칼로리에 맞는<br/>맞춤형 운동 계획을 제공해드려요</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -164,7 +167,7 @@ def main_page():
         <div class="feature-box">
             <div class="feature-icon">🥗</div>
             <div class="feature-title">식단 관리</div>
-            <div class="feature-text">남은 칼로리에 맞는 건강한 식단을 추천해드려요</div>
+            <div class="feature-text">남은 칼로리에 맞는<br/>건강한 식단을 추천해드려요</div>
         </div>
         """, unsafe_allow_html=True)
 
