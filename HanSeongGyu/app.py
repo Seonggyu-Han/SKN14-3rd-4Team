@@ -14,7 +14,9 @@ from langchain_openai import ChatOpenAI
 from langchain_pinecone import PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings
 from pinecone import Pinecone
+import dotenv
 
+dotenv.load_dotenv()
 
 # 페이지 설정
 st.set_page_config(
@@ -23,6 +25,12 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+# --- 입력값 세션 상태 초기화 ---
+if 'user_text' not in st.session_state:
+    st.session_state.user_text = ''
+if 'uploaded_files' not in st.session_state:
+    st.session_state.uploaded_files = None
 
 # CSS 스타일링
 st.markdown("""
@@ -286,42 +294,54 @@ def get_menu_context_with_threshold(
 
     return context, calorie
 
-def analyze_meal_with_llm(menu_name, calorie, user_info, rag_context="", chat_history=None) -> str:
+def analyze_meal_with_llm(menu_infos, user_info, rag_context=None, chat_history=None) -> str:
     try:
         llm = ChatOpenAI(model='gpt-4o-mini', temperature=0.3)
         history_prompt = ""
         if chat_history:
-            # 최근 5턴 context만
             for i, (role, content, images) in enumerate(chat_history[-5:]):
                 who = "사용자" if role == "user" else "GYM-PT"
                 history_prompt += f"{who}: {content}\n"
 
+        # 여러 음식 정보 표와 요약 만들기
+        table = "| No | 파일명 | 음식명 | 칼로리 |\n|---|---|---|---|\n"
+        foods_context = ""
+        total_calorie = 0
+        for i, info in enumerate(menu_infos):
+            menu = info.get("menu_name", "")
+            kcal = info.get("calorie", "")
+            filename = info.get("filename", "")
+            table += f"| {i+1} | {filename} | {menu} | {kcal} |\n"
+            foods_context += f"{i+1}. {filename}: {menu} ({kcal}kcal)\n"
+            try:
+                total_calorie += int(float(kcal))
+            except:
+                pass
+
         prompt = f"""
-[벡터DB 검색 결과]
-{rag_context}
+[오늘 섭취한 음식 정보]
+{foods_context}
+{table}
+총 섭취 칼로리: {total_calorie}kcal
 
 아래는 지금까지의 대화 내역입니다.
 {history_prompt}
 
----
-사용자의 새로운 입력과 음식 정보를 기반으로, 이전 대화 맥락도 반영해 맞춤형 답변을 해주세요.
-
-메뉴명: {menu_name}
-칼로리: {calorie}kcal
 사용자 정보: {user_info}
 
-[답변 형식]
-- 드신 메뉴와 칼로리 정보
-- 1일 권장 섭취량 계산
-- 해당 칼로리를 소모할 수 있는 운동 추천
+[답변 지침]
+- 먹은 음식(여러 개면 모두)(이미지로 받은 음식과, 텍스트로 받은 정보의 음식 모두)과 각각의 칼로리 정보를 표로 보여줄 것
+- 모든 음식의 총 섭취 칼로리를 계산해서 보여줄 것
+- 1일 권장 섭취량과 남은 칼로리 계산
+- 사용자가 섭취한 칼로리를 소모할 수 있는 운동 추천 (추천 운동의 칼로리 합 = 총 섭취 칼로리)
 - 남은 칼로리에 맞는 식단 추천
-
-친근하고 전문적인 톤으로 답변해주세요.
+- 모든 답변은 한 번에, 보기 좋게 작성할 것
 """
         result = llm.invoke(prompt)
         return result.content
     except Exception as e:
         return f"분석 중 오류가 발생했습니다: {str(e)}"
+
 
 
 # 메인 페이지
@@ -391,7 +411,6 @@ def chat_page():
             st.rerun()
     chat_container = st.container()
     with chat_container:
-        # st.markdown('<div class="chat-container">', unsafe_allow_html=True)   # 이 줄 삭제
         if st.session_state.chat_history:
             for i, (role, content, images) in enumerate(st.session_state.chat_history):
                 if role == "user":
@@ -408,7 +427,6 @@ def chat_page():
                         {content}
                     </div>
                     """, unsafe_allow_html=True)
-        # st.markdown('</div>', unsafe_allow_html=True)  # 이 줄 삭제
 
     st.markdown("---")
     st.markdown("### 📝 새로운 메시지")
@@ -416,7 +434,8 @@ def chat_page():
         "음식 사진을 업로드해주세요 (최대 5개)",
         type=['png', 'jpg', 'jpeg'],
         accept_multiple_files=True,
-        help="섭취한 음식의 사진을 올려주세요. 최대 5개까지 업로드 가능합니다."
+        key="uploaded_files",
+        help="섭취한 음식의 사진을 올려주세요. 최대 5개까지 업로드 가능합니다.\n 더 정확한 결과를 위해 한 사진에는 한 가지 음식만 담아 업로드해 주세요."
     )
     if uploaded_files and len(uploaded_files) > 5:
         st.error("최대 5개의 이미지만 업로드 가능합니다.")
@@ -424,9 +443,11 @@ def chat_page():
     user_text = st.text_area(
         "신체 정보와 음식에 대한 추가 정보를 입력해주세요",
         placeholder="예: 나이 25세, 남성, 키 175cm, 몸무게 70kg, 평소 운동량 중간, 아침에 삶은 계란 2개 먹음....",
-        height=100
+        height=100,
+        key="user_text" 
     )
     col1, col2, col3 = st.columns([1, 1, 1])
+
     with col2:
         if st.button("📤 분석 요청하기", use_container_width=True):
             if not uploaded_files and not user_text:
@@ -435,65 +456,82 @@ def chat_page():
                 with st.spinner("분석 중입니다..."):
                     try:
                         user_images = []
+                        menu_infos = []
+
+                        # 이미지 업로드한 경우
                         if uploaded_files:
                             for uploaded_file in uploaded_files:
                                 img = Image.open(uploaded_file)
                                 user_images.append(img)
-                        st.session_state.chat_history.append(("user", user_text, user_images))
-                        if uploaded_files:
+                            st.session_state.chat_history.append(("user", user_text, user_images))
+
                             os.environ.setdefault("OPENAI_API_KEY", "your-api-key-here")
                             inferer = OpenAIInferer("gpt-4o-mini", 0.0)
                             images = [Inferer.to_pil_image(f) for f in uploaded_files]
                             filenames = [f.name for f in uploaded_files]
-                            try:
-                                results = inferer(images, filenames)
-                                response_parts = []
-                                for filename, pred_str in results.items():
-                                    menu_name, ingredients = parse_prediction(pred_str)
-                                    rag_context, calorie = get_menu_context_with_threshold(menu_name)
-                                    analysis = analyze_meal_with_llm(
-                                        menu_name, calorie, user_text,
-                                        chat_history=st.session_state.chat_history
-                                    )
-                                    response_parts.append(f"📸 **{filename}**\n{rag_context}\n\n{analysis}")
+                            results = inferer(images, filenames)
 
-                                final_response = "\n\n---\n\n".join(response_parts)
-                            except Exception as e:
-                                final_response = f"""
-🍎 **분석 결과 (Demo)**
+                            for filename, pred_str in results.items():
+                                menu_name, ingredients = parse_prediction(pred_str)
+                                rag_context, calorie = get_menu_context_with_threshold(menu_name)
+                                menu_infos.append({
+                                    "filename": filename,
+                                    "menu_name": menu_name,
+                                    "calorie": calorie,
+                                    "ingredients": ingredients,
+                                    "rag_context": rag_context
+                                })
 
-드신 메뉴는 대략 **600kcal** 정도로 추정됩니다.
+                        # 텍스트만 입력한 경우 (이미지 업로드 없을 때만 추가)
+                        if not uploaded_files and user_text.strip():
+                            menu_infos.append({
+                                "filename": "-",
+                                "menu_name": user_text,
+                                "calorie": "",
+                                "ingredients": "",
+                                "rag_context": ""
+                            })
 
-📊 **권장 섭취량 분석:**
-- 입력하신 정보를 바탕으로 일일 권장 섭취량은 약 2,200kcal입니다.
-- 현재 섭취량을 제외하면 약 1,600kcal가 남았습니다.
-
-🏃‍♂️ **칼로리 소모 운동:**
-- 빠른 걷기: 90분 (600kcal 소모)
-- 자전거 타기: 60분 (600kcal 소모)
-- 조깅: 45분 (600kcal 소모)
-
-🥗 **추천 식단:**
-- 닭가슴살 샐러드 (300kcal)
-- 현미밥 1공기 (280kcal)
-- 고구마 (200kcal)
-- 두부요리 (150kcal)
-
-건강한 식단 관리를 위해 균형잡힌 영양소 섭취를 권장합니다! 💪
-
-*실제 사용시에는 OpenAI API 키를 설정해주세요.*
-"""
-                        else:
-                            # 이미지가 없는 경우에도 멀티턴 context 활용!
-                            final_response = analyze_meal_with_llm(
-                                menu_name="", calorie="", user_info=user_text,
-                                chat_history=st.session_state.chat_history
-                            )
+                        # 최종 분석 (이미지, 텍스트 모두 menu_infos에 들어감)
+                        final_response = analyze_meal_with_llm(
+                            menu_infos=menu_infos,
+                            user_info=user_text,
+                            chat_history=st.session_state.chat_history
+                        )
                         st.session_state.chat_history.append(("assistant", final_response, None))
                         st.rerun()
-                    except Exception as e:
-                        st.error(f"분석 중 오류가 발생했습니다: {str(e)}")
 
+                    except Exception as e:
+                        final_response = f"""
+                    🍎 **분석 결과 (Demo)**
+
+                    드신 메뉴는 대략 **600kcal** 정도로 추정됩니다.
+
+                    📊 **권장 섭취량 분석:**
+                    - 입력하신 정보를 바탕으로 일일 권장 섭취량은 약 2,200kcal입니다.
+                    - 현재 섭취량을 제외하면 약 1,600kcal가 남았습니다.
+
+                    🏃‍♂️ **칼로리 소모 운동:**
+                    - 빠른 걷기: 90분 (600kcal 소모)
+                    - 자전거 타기: 60분 (600kcal 소모)
+                    - 조깅: 45분 (600kcal 소모)
+
+                    🥗 **추천 식단:**
+                    - 닭가슴살 샐러드 (300kcal)
+                    - 현미밥 1공기 (280kcal)
+                    - 고구마 (200kcal)
+                    - 두부요리 (150kcal)
+
+                    건강한 식단 관리를 위해 균형잡힌 영양소 섭취를 권장합니다! 💪
+
+                    *실제 사용시에는 OpenAI API 키를 설정해주세요.*
+
+                    ---
+                    ⚠️ **에러 로그:**  
+                    {str(e)}
+                    """
+                        st.session_state.chat_history.append(("assistant", final_response, None))
+                        st.rerun()
 # 메인 앱 실행
 def main():
     if st.session_state.page == 'main':
@@ -503,4 +541,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
