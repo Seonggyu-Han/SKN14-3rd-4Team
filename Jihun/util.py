@@ -26,7 +26,7 @@ def parse_prediction(pred_str: str) -> Tuple[str, str]:
         return pred_str, ""
 
 # --- 3. Pinecone 검색 ---
-def search_menu(menu_name: str, k: int = 3) -> List[Tuple]:
+def search_menu(vector_store, menu_name: str, k: int = 3) -> List[Tuple]:
     return vector_store.similarity_search_with_score(query=menu_name, k=k)
 
 
@@ -56,11 +56,12 @@ def ask_llm_calorie(menu_name: str) -> str:
 
 # --- 6. 메뉴명 기반 컨텍스트 생성 + 칼로리 반환 개선 버전 ---
 def get_menu_context_with_threshold(
+        vector_store,
         menu_name: str,
         k: int = 1,
         threshold: float = 0.4
 ) -> Tuple[str, str]:
-    matches = search_menu(menu_name, k)
+    matches = search_menu(vector_store, menu_name, k)
 
     if not matches or matches[0][1] < threshold:
         # 유사도 낮을 경우 LLM으로 fallback
@@ -77,6 +78,8 @@ def get_menu_context_with_threshold(
     # 칼로리 정보가 누락되어 있을 경우 fallback
     if not calorie or not str(calorie).isdigit():
         calorie = ask_llm_calorie(menu_name)
+
+    # print("음식 정보 컨텍스트", "-"*40, context, sep="\n", end="\n")
 
     return context, calorie
 
@@ -115,6 +118,9 @@ def analyze_meal_with_llm(menu_name, calorie, user_info, rag_context="", chat_hi
 
         prompt = prompt_tmpl.format(rag_context=rag_context, history_prompt=history_prompt, menu_name=menu_name, calorie=calorie, user_info=user_info)
         result = llm.invoke(prompt)
+
+        # print("최종 결과 답변", "-"*40, result.content, sep="\n", end="\n")
+
         return result.content
     except Exception as e:
         return f"분석 중 오류가 발생했습니다: {str(e)}"

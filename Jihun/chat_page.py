@@ -6,7 +6,6 @@ from config import *
 # 멀티턴 챗봇: chat_history를 LLM context로 넣어줌!
 def chat_page():
     session_initiate()
-    print_session_state()
 
     st.markdown('<h2 style="text-align: center; color: #2E7D32; margin-bottom: 2rem;">💬 GYM-PT와 대화하기</h2>', unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 6, 1])
@@ -75,7 +74,7 @@ def chat_page():
                                 response_parts = []
                                 for filename, pred_str in results.items():
                                     menu_name, ingredients = parse_prediction(pred_str)
-                                    rag_context, calorie = get_menu_context_with_threshold(menu_name)
+                                    rag_context, calorie = get_menu_context_with_threshold(vector_store, menu_name)
                                     analysis = analyze_meal_with_llm(
                                         menu_name, calorie, user_text,
                                         chat_history=st.session_state.chat_history

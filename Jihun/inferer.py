@@ -99,4 +99,6 @@ class OpenAIInferer(Inferer):
         for thread in threads:  thread.start()
         for thread in threads:  thread.join()
 
+        # print("음식 이미지 분류 결과", "-"*40, storage, sep="\n", end="\n")
+
         return storage
