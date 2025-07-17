@@ -3,8 +3,8 @@ import json
 
 
 # 이 함수는 예시입니다. 실제 LLM API 호출 및 응답 처리에 맞게 구현해야 합니다.
-def get_ai_response(user_prompt, image_bytes=None, user_info=None, model_name="gpt-4.1-nano"):
-    messages = []
+def get_ai_response(user_prompt, image_bytes=None, user_info=None, model_name="gpt-4.1-nano", messages:list=None):
+    # messages = []
 
     # 사용자 정보 추가
     user_info_str = f"사용자 정보: 키 {user_info.get('height')}cm, 몸무게 {user_info.get('weight')}kg, 나이 {user_info.get('age')}세, 성별 {user_info.get('gender')}."
