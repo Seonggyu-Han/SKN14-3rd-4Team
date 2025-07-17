@@ -10,7 +10,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
 from transformers import BlipProcessor, BlipForQuestionAnswering
-
+import torch
 
 class Inferer:
     def image_to_base64(self, image: Image):
@@ -30,8 +30,26 @@ class BlipVQAInferer(Inferer):
         self.model     = BlipForQuestionAnswering.from_pretrained(model_id)
 
     def infer(self, image:Image, filename:str):
-        pass
+        question = "What is the name and ingredients of this food?"
+        inputs   = self.processor(
+            images=image,
+            text=question,
+            return_tensors='pt'
+        )
 
+        with torch.no_grad():
+            outputs = self.model.generate(
+                **inputs,       # inputs_ids, attention_mask, pixel_values
+                max_length=50,
+                num_beams=3,    # beam_search 토큰후보군3개 운영
+            )
+            answer = self.processor.decode(outputs[0], skip_special_tokens=True)
+        return answer
+    def __call__(self, images:list[Image], filenames:list[str]):
+        tmp_zip = zip(images, filenames)
+        storage = {nm:self.infer(img, nm) for img, nm in tmp_zip}
+
+        return storage
 
 class OpenAIInferer(Inferer):
     def __init__(self, model_id="gpt-4.1-nano", temperature=.0, api_key=None):
@@ -74,11 +92,13 @@ class OpenAIInferer(Inferer):
         storage[filename] = chain.invoke({})
 
     def __call__(self, images:list[Image], filenames:list[str], *, parser=StrOutputParser()):
-        storage = {}
         tmp_zip = zip(images, filenames)
+        storage = {}
         threads = [threading.Thread(target=self.infer, args=(img, nm, storage, parser)) for img, nm in tmp_zip]
 
         for thread in threads:  thread.start()
         for thread in threads:  thread.join()
+
+        # print("음식 이미지 분류 결과", "-"*40, storage, sep="\n", end="\n")
 
         return storage
