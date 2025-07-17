@@ -61,7 +61,9 @@ def get_menu_context_with_threshold(
         k: int = 1,
         threshold: float = 0.4
 ) -> Tuple[str, str]:
+
     matches = search_menu(vector_store, menu_name, k)
+
 
     if not matches or matches[0][1] < threshold:
         # 유사도 낮을 경우 LLM으로 fallback
@@ -84,39 +86,52 @@ def get_menu_context_with_threshold(
     return context, calorie
 
 
-def analyze_meal_with_llm(menu_name, calorie, user_info, rag_context="", chat_history=None) -> str:
+def analyze_meal_with_llm(menu_infos, user_info, rag_context="", chat_history=None) -> str:
     prompt_tmpl = """
-[벡터DB 검색 결과]
-{rag_context}
+[오늘 섭취한 음식 정보]
+{foods_context}
+{table}
+총 섭취 칼로리: {total_calorie}kcal
 
 아래는 지금까지의 대화 내역입니다.
 {history_prompt}
 
----
-사용자의 새로운 입력과 음식 정보를 기반으로, 이전 대화 맥락도 반영해 맞춤형 답변을 해주세요.
-
-메뉴명: {menu_name}
-칼로리: {calorie}kcal
 사용자 정보: {user_info}
 
-[답변 형식]
-- 드신 메뉴와 칼로리 정보
-- 1일 권장 섭취량 계산
-- 해당 칼로리를 소모할 수 있는 운동 추천
+[답변 지침]
+- 먹은 음식(여러 개면 모두)(이미지로 받은 음식과, 텍스트로 받은 정보의 음식 모두)과 각각의 칼로리 정보를 표로 보여줄 것
+- 모든 음식의 총 섭취 칼로리를 계산해서 보여줄 것
+- 사용자의 신체 정보와 운동량을 고려하여 1일 권장 섭취량을 계산하고 보여줄 것
+- 1일 권장 섭취량과 남은 칼로리 계산
+- 사용자가 섭취한 칼로리를 소모할 수 있는 운동 추천 (추천 운동의 칼로리 합 = 총 섭취 칼로리)
+- 사용자가 추가적으로 운동 방향을 제시하면 그 방향에 맞춰 추천해줄 것.
 - 남은 칼로리에 맞는 식단 추천
-
-친근하고 전문적인 톤으로 답변해주세요.
+- 모든 답변은 한 번에, 보기 좋게 작성할 것
 """
     try:
         llm = ChatOpenAI(model='gpt-4o-mini', temperature=0.3)
         history_prompt = ""
         if chat_history:
-            # 최근 5턴 context만
-            for role, content, images in chat_history[-5:]:
+            for i, (role, content, images) in enumerate(chat_history[-5:]):
                 who = "사용자" if role == "user" else "GYM-PT"
                 history_prompt += f"{who}: {content}\n"
 
-        prompt = prompt_tmpl.format(rag_context=rag_context, history_prompt=history_prompt, menu_name=menu_name, calorie=calorie, user_info=user_info)
+        # 여러 음식 정보 표와 요약 만들기
+        table = "| No | 파일명 | 음식명 | 칼로리 |\n|---|---|---|---|\n"
+        foods_context = ""
+        total_calorie = 0
+        for i, info in enumerate(menu_infos):
+            menu = info.get("menu_name", "")
+            kcal = info.get("calorie", "")
+            filename = info.get("filename", "")
+            table += f"| {i + 1} | {filename} | {menu} | {kcal} |\n"
+            foods_context += f"{i + 1}. {filename}: {menu} ({kcal}kcal)\n"
+            try:
+                total_calorie += int(float(kcal))
+            except:
+                pass
+
+        prompt = prompt_tmpl.format(foods_context=foods_context, table=table, total_calorie=total_calorie, history_prompt=history_prompt, user_info=user_info)
         result = llm.invoke(prompt)
 
         # print("최종 결과 답변", "-"*40, result.content, sep="\n", end="\n")
