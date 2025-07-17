@@ -4,6 +4,9 @@ def main_page():
     # 메인 페이지 전용 CSS
     st.markdown("""
     <style>
+        .stMainBlockContainer {
+            min-width:1000px;
+        }
         .main-header {
             text-align: center;
             color: #2E7D32;
@@ -35,6 +38,12 @@ def main_page():
             font-size: 1.1rem;
             line-height: 1.6;
             text-align: center;
+        }
+        
+        .description-text > .list-item {
+            display: inline-block;
+            min-width: 480px;
+            text-align: left;
         }
 
         .stButton > button {
@@ -124,9 +133,9 @@ def main_page():
     <div class="description-box">
         <div class="description-text">
             <strong>🍎 오늘 섭취한 음식의 사진들과 약간의 신체정보를 넣어주시면</strong><br><br>
-            ✅ 이 음식은 몇 칼로리인지<br>
-            ✅ 이 칼로리를 소모하려면 어떤 운동을 얼만큼 해야하는지<br>
-            ✅ 남은 끼니는 어떤 음식을 섭취하면 좋을지<br><br>
+            <span class="list-item">✅ 이 음식은 몇 칼로리인지</span><br>
+            <span class="list-item">✅ 이 칼로리를 소모하려면 어떤 운동을 얼만큼 해야하는지</span><br>
+            <span class="list-item">✅ 남은 끼니는 어떤 음식을 섭취하면 좋을지</span><br><br>
             <strong>전문적으로 알려드릴게요!</strong>
         </div>
     </div>
@@ -140,7 +149,7 @@ def main_page():
         <div class="feature-box">
             <div class="feature-icon">📸</div>
             <div class="feature-title">이미지 분석</div>
-            <div class="feature-text">음식 사진을 올리면 AI가 메뉴와 칼로리를 분석해드려요</div>
+            <div class="feature-text">음식 사진을 올리면<br/>AI가 메뉴와 칼로리를 분석해드려요</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -149,7 +158,7 @@ def main_page():
         <div class="feature-box">
             <div class="feature-icon">🏃‍♂️</div>
             <div class="feature-title">운동 추천</div>
-            <div class="feature-text">섭취한 칼로리에 맞는 맞춤형 운동 계획을 제공해드려요</div>
+            <div class="feature-text">섭취한 칼로리에 맞는<br/>맞춤형 운동 계획을 제공해드려요</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -158,7 +167,7 @@ def main_page():
         <div class="feature-box">
             <div class="feature-icon">🥗</div>
             <div class="feature-title">식단 관리</div>
-            <div class="feature-text">남은 칼로리에 맞는 건강한 식단을 추천해드려요</div>
+            <div class="feature-text">남은 칼로리에 맞는<br/>건강한 식단을 추천해드려요</div>
         </div>
         """, unsafe_allow_html=True)
 
