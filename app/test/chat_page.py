@@ -14,31 +14,31 @@ GPT_MODEL = "gpt-4.1-nano"
 
 load_dotenv()
 
-# --- 세션 상태 초기화 ---
-if "uploaded_image_bytes" not in st.session_state:
-    st.session_state.uploaded_image_bytes = None
+def session_initiate():
+    # --- 세션 상태 초기화 ---
+    if "uploaded_image_bytes" not in st.session_state:
+        st.session_state.uploaded_image_bytes = None
 
-if "file_uploader_key_sidebar_counter" not in st.session_state:
-    st.session_state.file_uploader_key_sidebar_counter = 0
+    if "file_uploader_key_sidebar_counter" not in st.session_state:
+        st.session_state.file_uploader_key_sidebar_counter = 0
 
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "assistant", "content": "안녕하세요! 분석할 음식 사진을 올려주세요. 운동이나 식단 계획이 필요하시면 저에게 요청해주세요."}
-    ]
+    if "messages" not in st.session_state:
+        st.session_state.messages = [
+            {"role": "assistant", "content": "안녕하세요! 분석할 음식 사진을 올려주세요. 운동이나 식단 계획이 필요하시면 저에게 요청해주세요."}
+        ]
 
-if "user_info" not in st.session_state:
-    st.session_state.user_info = {
-        "height": None,
-        "weight": None,
-        "age": None,
-        "gender": "미선택"
-    }
+    if "user_info" not in st.session_state:
+        st.session_state.user_info = {
+            "height": None,
+            "weight": None,
+            "age": None,
+            "gender": "미선택"
+        }
 
-# 새로운 세션 상태 추가: 생성된 계획 데이터를 저장
-if "generated_plan_data" not in st.session_state:
-    st.session_state.generated_plan_data = None
-# --- 세션 상태 초기화 끝 ---
-
+    # 새로운 세션 상태 추가: 생성된 계획 데이터를 저장
+    if "generated_plan_data" not in st.session_state:
+        st.session_state.generated_plan_data = None
+    # --- 세션 상태 초기화 끝 ---
 
 # --- OpenAI API 키 설정 ---
 try:
@@ -140,6 +140,8 @@ def get_plan_prompt(plan_type, duration_weeks=1, user_prompt_text=""):
 
 
 def chat_page():
+    session_initiate()
+
     # --- Streamlit UI 구성 ---
     st.set_page_config(page_title="AI 영양 분석 챗봇", page_icon="🥗", layout="centered")
 
