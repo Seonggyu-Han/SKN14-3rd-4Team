@@ -1,5 +1,16 @@
 # SKN14-3rd-4Team
 
+## Conda Environment
+```commandline
+conda create -n project_3rd_4team -y python=3.12
+conda activate project_3rd_4team
+```
+
+## Installed Package
+```commandline
+pip install pandas torch langchain langchain-openai langchain-pinecone python-dotenv streamlit transformers accelerate
+```
+
 # 4팀: 다이어트를 위한 식단 관리 및 운동 추천 챗봇
 
 ## 1. 팀 소개
@@ -265,6 +276,8 @@ flowchart LR
       <b>조성렬</b>
     </td>
     <td>
+         이번 프로젝트를 진행하면서 구성부터 어떻게 해야할지에 대한 걱정이 앞섰는데 팀원분들과 좋은 의견을 나누면서 생각보다 수월하게 진행할수있던것 같습니다. 가장중요한 마지막날 참여하지 못해 팀원분들에게 죄송하고 아쉽지만 멋지게 마무리해주셔서 감사했습니다. 프로젝트를 하면서 이해가 안되던 부분을 이해하고 흐름을 알수있어서 성장할수있던 시간이였다고 생각합니다
+    </td>
            
     
 
