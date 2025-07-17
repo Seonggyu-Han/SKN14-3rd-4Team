@@ -36,6 +36,12 @@ def main_page():
             line-height: 1.6;
             text-align: center;
         }
+        
+        .description-text > .list-item {
+            display: inline-block;
+            min-width: 480px;
+            text-align: left;
+        }
 
         .stButton > button {
             background: linear-gradient(45deg, #4CAF50, #66BB6A);
@@ -124,9 +130,9 @@ def main_page():
     <div class="description-box">
         <div class="description-text">
             <strong>🍎 오늘 섭취한 음식의 사진들과 약간의 신체정보를 넣어주시면</strong><br><br>
-            ✅ 이 음식은 몇 칼로리인지<br>
-            ✅ 이 칼로리를 소모하려면 어떤 운동을 얼만큼 해야하는지<br>
-            ✅ 남은 끼니는 어떤 음식을 섭취하면 좋을지<br><br>
+            <span class="list-item">✅ 이 음식은 몇 칼로리인지</span><br>
+            <span class="list-item">✅ 이 칼로리를 소모하려면 어떤 운동을 얼만큼 해야하는지</span><br>
+            <span class="list-item">✅ 남은 끼니는 어떤 음식을 섭취하면 좋을지</span><br><br>
             <strong>전문적으로 알려드릴게요!</strong>
         </div>
     </div>
