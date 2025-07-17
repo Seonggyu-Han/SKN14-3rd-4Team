@@ -51,18 +51,20 @@
 ## 2. 프로젝트 개요
 
 ### 프로젝트 소개
-**‘다이어트를 위한 식단 관리 및 운동 추천 챗봇[GYM-PT]’은 인공지능 기반으로, 바쁜 현대인도 효율적으로 올바른 식단과 운동 습관을 관리할 수 있도록 설계된 통합 헬스케어 솔루션입니다.**
+다이어트를 위한 식단 관리 및 운동 추천 챗봇, **GYM-PT**는 인공지능 기반으로, 바쁜 현대인도 효율적으로 올바른 식단과 운동 습관을 관리할 수 있도록 설계된 통합 헬스케어 솔루션입니다.**
 
-이 시스템은 음식 사진 또는 간단한 텍스트 입력만으로 칼로리, 영양 성분, 재료 정보를 자동 제공하며, 공식 데이터베이스와 연동해 신뢰성 있는 정보를 빠르게 제공합니다. 대화형 챗봇은 사용자별 목표와 상황에 맞는 운동 루틴을 안내하여 시간과 비용 부담을 줄이고 누구나 지속가능한 건강관리를 실천할 수 있도록 지원합니다.
+이 시스템은 음식 사진 또는 간단한 텍스트 입력만으로 칼로리, 영양 성분, 재료 등 공식 데이터베이스와 연동하여 신뢰성 있는 정보를 빠르게 제공합니다. 대화형 챗봇은 사용자별 목표와 상황에 맞는 운동 루틴을 안내하여 시간과 비용 부담을 줄이고 누구나 지속가능한 건강관리를 실천할 수 있도록 지원합니다.
 
 본 프로젝트는 복잡한 건강관리 과정을 간소화하고, 사용자 중심의 맞춤형 데이터 기반 안내를 통해 실생활에서 자기관리와 삶의 질 향상에 기여하는 것을 목표로 합니다.
 
+<br>
 
 ### 개발 배경 및 필요성
 
 <img width="2693" height="1022" alt="Section 1 (1)" src="https://github.com/user-attachments/assets/00178ced-e868-40c0-a85e-d657fe8412ac" />
+*▲ 운동부족 관련 기사(좌), 영양 부족의 원인을 보여주는 다이어그램(우)*
 
-빠르게 변화하는 라이프스타일, 도시화, 바쁜 일정, 정보 접근성 한계 등으로 건강 습관 유지가 점점 더 어려워지고 있습니다. 많은 사람들이 시간·비용의 제약, 부정확한 건강 정보, 운동시설 부족, 동기 저하 등으로 식단 관리와 규칙적 운동 실천이 어렵습니다.
+빠르게 변화하는 라이프스타일, 급격한 도시화, 바쁜 일정, 쏟아지는 정보의 접근성 한계 등으로 현대인의 건강 습관 유지가 점점 더 어려워지고 있습니다. 많은 사람들이 시간·비용의 제약, 부정확한 건강 정보, 운동시설 부족, 동기 저하 등으로 식단 관리와 규칙적 운동 실천이 어렵습니다.
 
 그 결과 운동 부족과 영양 불균형 문제가 심각해지고 만성질환과 사회적 부담도 커지고 있습니다. 누구나 쉽게 접근 가능한 신뢰 있는 정보와, 개인 환경과 목표에 맞춘 건강 관리가 필요합니다.
 
@@ -77,7 +79,7 @@
 
 | **Frontend** | **Backend** | **LLM Model** | **Vector DB** | **Collaboration Tool** |
 |:---:|:---:|:---:|:---:|:---:|
-| <img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white"/> | <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/> <br> <img src="https://img.shields.io/badge/Jupyter-F37626?style=for-the-badge&logo=jupyter&logoColor=white"/> | <img src="https://img.shields.io/badge/OpenAI-GPT4o-10a37f?style=for-the-badge&logo=openai&logoColor=white"/> <br> <img src="https://img.shields.io/badge/OpenAI-GPT--4.1-10a37f?style=for-the-badge&logo=openai&logoColor=white"/> | <img src="https://img.shields.io/badge/Pinecone-27AE60?style=for-the-badge&logo=pinecone&logoColor=white"/> | <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white"/> <br> <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/> <br> <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white"/> <br> <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white"/> |
+| <img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white"/> <img src="https://img.shields.io/badge/CSS-blue?style=for-the-badge&logo=css&logoColor=white"/>| <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/> <br> <img src="https://img.shields.io/badge/Jupyter-F37626?style=for-the-badge&logo=jupyter&logoColor=white"/> | <img src="https://img.shields.io/badge/OpenAI-GPT4o-10a37f?style=for-the-badge&logo=openai&logoColor=white"/> <br> <img src="https://img.shields.io/badge/OpenAI-GPT--4.1-10a37f?style=for-the-badge&logo=openai&logoColor=white"/> | <img src="https://img.shields.io/badge/Pinecone-27AE60?style=for-the-badge&logo=pinecone&logoColor=white"/> | <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white"/> <br> <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/> <br> <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white"/> <br> <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white"/> |
 
 
 
@@ -155,7 +157,7 @@ flowchart LR
 
 | 단계                  | 내용 요약                                                                                      |
 |----------------------|--------------------------------------------------------------------------------------------|
-| 데이터 수집 및 전처리   | 외부 공개 식품DB(식품의약안전처 공공데이터 조리식품 레시피DB)에서 음식 정보, 레시피 데이터 수집<br>https://www.foodsafetykorea.go.kr/api/openApiInfo.do?menu_grp=MENU_GRP31&menu_no=661&show_cnt=10&start_idx=1&svc_no=COOKRCP01 |
+| 데이터 수집 및 전처리   | 외부 공개 식품DB(식품의약안전처 공공데이터 조리식품 레시피DB)에서 음식 정보, 레시피 데이터 수집<br>https://www.foodsafetykorea.go.kr/api/openApiInfo.do?menu_grp=MENU_GRP31&menu_no=661&show_cnt=10&start_idx=1&svc_no=COOKRCP01<br><br>https://www.data.go.kr/data/15100070/standard.do?utm_source=chatgpt.com#tab_layer_grid |
 | 임베딩 및 벡터DB 구축  | 음식명·재료 기반 텍스트와 이미지에서 추출한 특징을 임베딩 후 Pinecone 벡터DB에 저장                       |
 | 입력 타입 분기         | 업로드 데이터가 이미지(음식 사진)인지 텍스트(개인정보)인지 판별 후 경로 분기                              |
 | AI 정보 추출 및 유사도 검색 | 이미지 입력 시 GPT-4.1 등으로 음식명·재료 추출 → Pinecone에서 유사 메뉴 **Top-5**(k=5, 유사도 ≥ 0.4) 검색 |
